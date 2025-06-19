@@ -1,0 +1,165 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  AWS_REGION: us-east-1
+
+jobs:
+  # Code Quality and Testing
+  quality-check:
+    runs-on: ubuntu-latest
+    name: Code Quality & Testing
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install uv
+      run: pip install uv
+      
+    - name: Install dependencies
+      run: |
+        uv venv
+        source .venv/bin/activate
+        uv pip install -r uv.lock
+        
+    - name: Lint with flake8
+      run: |
+        source .venv/bin/activate
+        flake8 scripts/ dashboard/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 scripts/ dashboard/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Type checking with mypy
+      run: |
+        source .venv/bin/activate
+        mypy scripts/ dashboard/ --ignore-missing-imports
+        
+    - name: Security scan with bandit
+      run: |
+        source .venv/bin/activate
+        bandit -r scripts/ dashboard/ -f json -o security-report.json
+        
+    - name: Run tests
+      run: |
+        source .venv/bin/activate
+        python -m pytest tests/ -v --cov=scripts --cov=dashboard --cov-report=xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Docker Build and Security Scan
+  docker-build:
+    runs-on: ubuntu-latest
+    name: Docker Build & Security Scan
+    needs: quality-check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: ev-leadgen:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ev-leadgen:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # AWS Deployment (only on main branch)
+  deploy-aws:
+    runs-on: ubuntu-latest
+    name: Deploy to AWS
+    needs: [quality-check, docker-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ev-leadgen
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+    - name: Deploy to AWS Lambda
+      run: |
+        # Update Lambda function with new image
+        aws lambda update-function-code \
+          --function-name ev-leadgen-processor \
+          --image-uri ${{ steps.login-ecr.outputs.registry }}/ev-leadgen:${{ github.sha }}
+          
+    - name: Update ECS service
+      run: |
+        # Update ECS service with new image
+        aws ecs update-service \
+          --cluster ev-leadgen-cluster \
+          --service ev-leadgen-dashboard \
+          --force-new-deployment
+
+  # Notification
+  notify:
+    runs-on: ubuntu-latest
+    name: Notify Deployment Status
+    needs: [deploy-aws]
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: needs.deploy-aws.result == 'success'
+      run: |
+        echo "✅ Deployment successful!"
+        
+    - name: Notify failure
+      if: needs.deploy-aws.result == 'failure'
+      run: |
+        echo "❌ Deployment failed!" 

@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Main application service
+  ev-leadgen-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ev-leadgen-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONPATH=/app
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    volumes:
+      # Mount data directory for persistence during development
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./visualizations:/app/visualizations
+      - ./logs:/app/logs
+    networks:
+      - ev-leadgen-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Data processing service (for batch jobs)
+  ev-leadgen-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ev-leadgen-processor
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./visualizations:/app/visualizations
+      - ./logs:/app/logs
+      - ./config:/app/config
+    networks:
+      - ev-leadgen-network
+    profiles:
+      - processing
+    command: ["python", "scripts/run_full_pipeline.py"]
+
+networks:
+  ev-leadgen-network:
+    driver: bridge
+    name: ev-leadgen-network
+
+volumes:
+  ev-leadgen-data:
+    name: ev-leadgen-data
+  ev-leadgen-reports:
+    name: ev-leadgen-reports 
