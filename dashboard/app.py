@@ -5,9 +5,10 @@ import os
 
 st.title("YouTube EV Lead Generation Dashboard")
 
-ENRICHED_CSV = "../data/comments_data_enriched.csv"
-LEADS_CSV = "../data/leads.csv"
-ALERTS_TXT = "../reports/alerts_summary.txt"
+# Use relative paths that work in both local and Docker environments
+ENRICHED_CSV = "data/comments_data_enriched.csv"
+LEADS_CSV = "data/leads.csv"
+ALERTS_TXT = "reports/alerts_summary.txt"
 
 # Load data
 df = pd.read_csv(ENRICHED_CSV) if os.path.exists(ENRICHED_CSV) else None

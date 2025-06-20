@@ -4,8 +4,8 @@ import os
 import json
 from datetime import datetime, timedelta
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -229,12 +229,12 @@ def send_executive_alert(report, alerts):
         return
     
     try:
-        msg = MimeMultipart()
+        msg = MIMEMultipart()
         msg['From'] = email_user
         msg['To'] = executive_email
         msg['Subject'] = f"EV Lead Generation Alert - {len(alerts)} Active Alerts"
         
-        msg.attach(MimeText(report, 'plain'))
+        msg.attach(MIMEText(report, 'plain'))
         
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()

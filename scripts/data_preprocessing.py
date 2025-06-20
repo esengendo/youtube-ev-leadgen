@@ -1,7 +1,6 @@
 import pandas as pd
 import re
 import os
-import plotly.express as px
 
 RAW_CSV = "data/comments_data.csv"
 CLEAN_CSV = "data/comments_data_cleaned.csv"
@@ -12,13 +11,13 @@ def clean_comment(text):
     # Lowercase
     text = text.lower()
     # Remove URLs
-    text = re.sub(r"http\\S+|www\\.\\S+", "", text)
+    text = re.sub(r"http\S+|www\.\S+", "", text)
     # Remove emojis and non-ASCII
     text = text.encode("ascii", "ignore").decode()
     # Remove special characters and numbers (keep basic punctuation)
-    text = re.sub(r"[^a-zA-Z\\s.,!?']", " ", text)
+    text = re.sub(r"[^a-zA-Z\s.,!?']", " ", text)
     # Remove extra whitespace
-    text = re.sub(r"\\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
     return text
 
 def main():
@@ -27,49 +26,32 @@ def main():
         return
 
     df = pd.read_csv(RAW_CSV)
+    print(f"Loaded {len(df)} raw comments")
 
     # Remove duplicates
+    initial_count = len(df)
     df = df.drop_duplicates(subset=["Username", "Comment", "Timestamp"])
+    print(f"Removed {initial_count - len(df)} duplicates")
 
     # Drop rows with missing essential fields
     df = df.dropna(subset=["Comment", "Username"])
+    print(f"After removing missing data: {len(df)} comments")
 
     # Clean comment text
     df["Cleaned_Comment"] = df["Comment"].apply(clean_comment)
 
     # Remove comments that are too short or empty after cleaning
     df = df[df["Cleaned_Comment"].str.len() > 5]
+    print(f"After removing short comments: {len(df)} comments")
+
+    # Add comment length for future analysis
+    df["comment_length"] = df["Cleaned_Comment"].str.len()
 
     # Save cleaned data
     os.makedirs("data", exist_ok=True)
     df.to_csv(CLEAN_CSV, index=False)
     print(f"Cleaned data saved to {CLEAN_CSV}")
-
-    fig = px.line(
-        df.groupby(['date', 'Sentiment']).size().reset_index(name='num_comments'),
-        x='date', y='num_comments', color='Sentiment',
-        title='Comments Over Time by Sentiment'
-    )
-    fig.show()
-
-    fig = px.histogram(
-        df, x='comment_length', color='Intent', barmode='overlay',
-        nbins=30, title='Comment Length Distribution by Intent'
-    )
-    fig.show()
-
-    fig = px.pie(
-        df, names='Intent', title='Distribution of Comment Intents'
-    )
-    fig.show()
-
-    top_users = df['Username'].value_counts().head(10).index
-    fig = px.bar(
-        df[df['Username'].isin(top_users)].groupby(['Username', 'Sentiment']).size().reset_index(name='count'),
-        x='Username', y='count', color='Sentiment',
-        title='Top 10 Users by Sentiment'
-    )
-    fig.show()
+    print(f"Columns: {list(df.columns)}")
 
 if __name__ == "__main__":
     main()

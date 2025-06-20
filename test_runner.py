@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
 """
 Test Runner for EV Lead Generation Dashboard
 Provides easy commands to run different types of tests
+
+Usage: 
+- In Docker: python test_runner.py [options]
+- Locally: uv run python test_runner.py [options]
 """
 
 import subprocess
@@ -9,7 +12,30 @@ import sys
 import time
 import requests
 import argparse
+import os
 from pathlib import Path
+
+def get_python_cmd():
+    """Detect environment and return appropriate Python command"""
+    if os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER'):
+        # Running in Docker container
+        return "python"
+    elif os.path.exists('.venv/bin/python'):
+        # Running locally with virtual environment
+        return ".venv/bin/python"
+    else:
+        # Fallback to system python
+        print("⚠️ Warning: Using system Python. Consider using 'uv run python test_runner.py' instead.")
+        return "python"
+
+def get_streamlit_cmd():
+    """Get appropriate Streamlit command based on environment"""
+    if os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER'):
+        return "streamlit"
+    elif os.path.exists('.venv/bin/streamlit'):
+        return ".venv/bin/streamlit"
+    else:
+        return "streamlit"
 
 def check_streamlit_running(port=8501):
     """Check if Streamlit is running on the specified port"""
@@ -22,7 +48,8 @@ def check_streamlit_running(port=8501):
 def run_unit_tests():
     """Run unit tests using Streamlit's testing framework"""
     print("🧪 Running unit tests...")
-    cmd = ["python", "-m", "pytest", "tests/test_streamlit_dashboard.py", "-v", "-m", "not browser"]
+    python_cmd = get_python_cmd()
+    cmd = [python_cmd, "-m", "pytest", "tests/test_streamlit_dashboard.py", "-v", "-m", "not browser"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     
     print(result.stdout)
@@ -34,13 +61,14 @@ def run_unit_tests():
 def run_browser_tests():
     """Run browser-based integration tests"""
     print("🌐 Running browser tests...")
+    python_cmd = get_python_cmd()
     
     # Install playwright browsers if needed
     print("Installing Playwright browsers...")
-    subprocess.run(["python", "-m", "playwright", "install", "chromium"], 
+    subprocess.run([python_cmd, "-m", "playwright", "install", "chromium"], 
                   capture_output=True)
     
-    cmd = ["python", "-m", "pytest", "tests/test_streamlit_browser.py", "-v", "--headed"]
+    cmd = [python_cmd, "-m", "pytest", "tests/test_streamlit_browser.py", "-v", "--headed"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     
     print(result.stdout)
@@ -62,9 +90,10 @@ def run_manual_test():
     print("Dashboard will be available at: http://localhost:8501")
     print("Press Ctrl+C to stop the server")
     
+    streamlit_cmd = get_streamlit_cmd()
     try:
         subprocess.run([
-            "streamlit", "run", "dashboard/streamlit_dashboard.py",
+            streamlit_cmd, "run", "dashboard/streamlit_dashboard.py",
             "--server.headless", "false"
         ])
     except KeyboardInterrupt:
@@ -79,14 +108,16 @@ def run_performance_test():
     start_time = time.time()
     
     if not check_streamlit_running():
-        print("❌ Streamlit is not running. Please start it first with: python test_runner.py --manual")
+        python_cmd = get_python_cmd()
+        print(f"❌ Streamlit is not running. Please start it first with: {python_cmd} test_runner.py --manual")
         return False
     
     load_time = time.time() - start_time
     print(f"✅ Dashboard health check completed in {load_time:.2f} seconds")
     
     # Run specific performance tests
-    cmd = ["python", "-m", "pytest", "tests/test_streamlit_dashboard.py::TestDashboardPerformance", "-v"]
+    python_cmd = get_python_cmd()
+    cmd = [python_cmd, "-m", "pytest", "tests/test_streamlit_dashboard.py::TestDashboardPerformance", "-v"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     
     print(result.stdout)
@@ -153,7 +184,8 @@ def install_test_dependencies():
     
     # Install Playwright browsers
     print("Installing Playwright browsers...")
-    subprocess.run(["python", "-m", "playwright", "install", "chromium"])
+    python_cmd = get_python_cmd()
+    subprocess.run([python_cmd, "-m", "playwright", "install", "chromium"])
     
     print("✅ All test dependencies installed successfully!")
     return True

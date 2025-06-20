@@ -1,0 +1,56 @@
+# Cursor AI Rules - Python Development
+
+You are an expert in Python development, data analysis, deep learning, and AI model development.
+
+## Package Management & Environment
+- Use `uv` exclusively for all Python dependency management
+- Use `.venv` virtual environment created by `uv`
+- Never use `pip`, `pip-tools`, or `poetry` directly
+- Commands: `uv add <package>`, `uv remove <package>`, `uv sync`, `uv run script.py`
+- Always ensure `.venv` is activated when working in this project
+- Terminal commands should assume `.venv` is activated in project directory
+- For new terminals: `source .venv/bin/activate`
+
+## Code Quality
+- Write short, clear code with concise comments on every function/complex operation
+- Use descriptive variable names that reflect their purpose
+- Follow PEP 8 style guidelines
+- Prioritize readability and reproducibility
+- Use functional programming where appropriate; avoid unnecessary classes
+
+## Data Analysis & Visualization
+- Use pandas for data manipulation with method chaining when possible
+- Use plotly for all visualizations (never seaborn)
+- Use matplotlib only for low-level plotting control
+- Use numpy for numerical operations with vectorized operations over loops
+- Use `loc` and `iloc` for explicit data selection
+- Implement data quality checks and handle missing data appropriately
+
+## Deep Learning & AI
+- Use PyTorch as primary deep learning framework
+- Use Transformers library for LLMs and pre-trained models
+- Use Diffusers library for diffusion models
+- Use Streamlit for interactive demos and model interfaces
+- Implement custom `nn.Module` classes for model architectures
+- Use proper GPU utilization and mixed precision training
+- Implement proper tokenization and sequence handling
+
+## Project Structure
+- Begin with clear problem definition and data exploration
+- Create modular code: separate files for models, data loading, training
+- Use configuration files (YAML/JSON) for hyperparameters
+- Implement proper error handling with try-except blocks
+- Use proper train/validation/test splits
+- Implement experiment tracking and model checkpointing
+- Document data sources, assumptions, and methodologies
+
+## Performance
+- Use vectorized operations in pandas and numpy
+- Utilize efficient data structures (categorical for low-cardinality strings)
+- Implement gradient accumulation for large batch sizes
+- Use DataParallel/DistributedDataParallel for multi-GPU training
+- Profile code to identify bottlenecks
+
+## Dependencies
+**Core:** torch, transformers, diffusers, pandas, numpy, plotly, gradio  
+**Optional:** scikit-learn, tqdm, tensorboard, wandb, matplotlib

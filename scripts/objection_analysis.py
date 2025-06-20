@@ -22,15 +22,11 @@ def combine_objections(row):
     return list(set(row['objection_keywords']) | set(row['objection_transformer']))
 
 def main():
-    # Load environment variables
-    load_dotenv(dotenv_path='../config/.env')
+    # Load environment variables - use relative path that works in both environments
+    load_dotenv(dotenv_path='config/.env')
 
-    # Robust path resolution for config file
-    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-    OBJECTION_CONFIG_PATH = os.getenv(
-        'OBJECTION_KEYWORDS_PATH',
-        os.path.normpath(os.path.join(SCRIPT_DIR, '../config/objection_keywords.json'))
-    )
+    # Use relative paths that work in both local and Docker environments
+    OBJECTION_CONFIG_PATH = os.getenv('OBJECTION_KEYWORDS_PATH', 'config/objection_keywords.json')
     DATA_PATH = os.getenv('ENRICHED_COMMENTS_PATH', 'data/comments_data_enriched.csv')
     OUTPUT_PATH = os.getenv('OBJECTION_OUTPUT_PATH', 'data/objection_analysis.csv')
 
