@@ -19,6 +19,9 @@ dependencies = [
     "wordcloud>=1.9.0",
     "seaborn>=0.12.0",
     "matplotlib>=3.7.0",
+    "jupyter>=1.1.1",
+    "jupyterlab>=4.4.3",
+    "ipykernel>=6.29.5",
 ]
 
 [project.optional-dependencies]
