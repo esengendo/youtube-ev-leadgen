@@ -411,10 +411,10 @@ This project demonstrates professional data science capabilities for portfolio p
 
 ## 📞 **Contact & Portfolio**
 
-**Professional Portfolio**: [Your Portfolio Website]  
-**LinkedIn**: [Your LinkedIn Profile]  
-**Email**: [your.email@domain.com]  
-**GitHub**: [Your GitHub Profile]
+**Professional Portfolio**: https://esengendo.github.io/esengendo  
+**LinkedIn**: https://www.linkedin.com/in/esengendo
+**Email**: esengendo@gmail.com 
+**GitHub**: https://github.com/esengendo
 
 ---
 
