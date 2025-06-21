@@ -412,8 +412,11 @@ This project demonstrates professional data science capabilities for portfolio p
 ## 📞 **Contact & Portfolio**
 
 **Professional Portfolio**: https://esengendo.github.io/esengendo  
+
 **LinkedIn**: https://www.linkedin.com/in/esengendo
+
 **Email**: esengendo@gmail.com 
+
 **GitHub**: https://github.com/esengendo
 
 ---
