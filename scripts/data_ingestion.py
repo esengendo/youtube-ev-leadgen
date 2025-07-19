@@ -102,22 +102,63 @@ def get_comments_for_video(youtube, video_id):
     return all_comments
 
 def main():
-    # Replace with your playlist IDs
-    playlist_ids = [
-        'PLNcgB4fXotQFFQKtR51jUKnAMOr3k_dpP'
-    ]
-    video_ids = get_all_video_ids_from_playlists(youtube, playlist_ids)
-    print(f"Found {len(video_ids)} videos.")
-    all_comments = []
-    for video_id in video_ids:
-        print(f"Fetching comments for video: {video_id}")
-        video_comments = get_comments_for_video(youtube, video_id)
-        all_comments.extend(video_comments)
-    comments_df = pd.DataFrame(all_comments)
-    os.makedirs("data", exist_ok=True)
-    csv_file = os.path.join("data", "comments_data.csv")
-    comments_df.to_csv(csv_file, index=False)
-    print(f"Saved all comments to {csv_file}")
+    try:
+        logger.info("Starting YouTube data ingestion")
+        
+        # Replace with your playlist IDs
+        playlist_ids = [
+            'PLNcgB4fXotQFFQKtR51jUKnAMOr3k_dpP'
+        ]
+        
+        video_ids = get_all_video_ids_from_playlists(youtube, playlist_ids)
+        
+        if not video_ids:
+            logger.warning("No video IDs found")
+            return False
+        
+        # Sample a subset if too many videos (for development/testing)
+        max_videos = 100
+        if len(video_ids) > max_videos:
+            video_ids = video_ids[:max_videos]
+            logger.info(f"Sampling first {max_videos} videos for processing")
+        
+        all_comments = []
+        failed_videos = 0
+        
+        for i, video_id in enumerate(video_ids):
+            logger.info(f"Processing video {i+1}/{len(video_ids)}: {video_id}")
+            try:
+                video_comments = get_comments_for_video(youtube, video_id)
+                all_comments.extend(video_comments)
+                logger.debug(f"Found {len(video_comments)} comments for video {video_id}")
+                
+                # Add delay between videos to respect rate limits
+                if i < len(video_ids) - 1:
+                    time.sleep(random.uniform(0.5, 1.5))
+                    
+            except Exception as e:
+                logger.error(f"Error processing video {video_id}: {e}")
+                failed_videos += 1
+        
+        # Save to CSV
+        if all_comments:
+            comments_df = pd.DataFrame(all_comments)
+            file_paths = config_manager.get_file_paths()
+            
+            if data_loader.save_csv_safe(comments_df, file_paths['raw_comments']):
+                logger.info(f"Successfully saved {len(all_comments)} comments")
+                logger.info(f"Videos processed: {len(video_ids) - failed_videos}/{len(video_ids)}")
+                return True
+            else:
+                logger.error("Failed to save comments data")
+                return False
+        else:
+            logger.warning("No comments found!")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Data ingestion failed: {e}")
+        return False
 
 if __name__ == "__main__":
     main()

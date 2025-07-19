@@ -7,22 +7,28 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from utils import data_loader, config_manager
+from logger_setup import get_logger
 
-# Load environment variables
+# Setup logging and configuration
+logger = get_logger(__name__)
 load_dotenv()
 
-# File paths
-LEADS_PREDICTED_CSV = "data/leads_predicted.csv"
-OBJECTION_CSV = "data/objection_analysis.csv"
-ENRICHED_CSV = "data/comments_data_enriched.csv"
-ALERTS_LOG = "reports/alerts_log.json"
-EXECUTIVE_REPORT = "reports/executive_dashboard.txt"
+# Use centralized configuration
+file_paths = config_manager.get_file_paths()
+thresholds = config_manager.get_business_thresholds()
 
-# Business thresholds
-HIGH_CONVERSION_THRESHOLD = 0.95
-NEGATIVE_SENTIMENT_SPIKE_THRESHOLD = 0.3
-NEW_LEADS_ALERT_THRESHOLD = 10
-OBJECTION_SPIKE_THRESHOLD = 0.25
+# Use centralized file paths and thresholds
+LEADS_PREDICTED_CSV = file_paths['predicted_leads']
+OBJECTION_CSV = file_paths['objection_analysis']
+ENRICHED_CSV = file_paths['enriched_comments']
+ALERTS_LOG = file_paths['alerts_log']
+EXECUTIVE_REPORT = file_paths['executive_report']
+
+HIGH_CONVERSION_THRESHOLD = thresholds['high_conversion_threshold']
+NEGATIVE_SENTIMENT_SPIKE_THRESHOLD = thresholds['negative_sentiment_spike_threshold']
+NEW_LEADS_ALERT_THRESHOLD = thresholds['new_leads_alert_threshold']
+OBJECTION_SPIKE_THRESHOLD = thresholds['objection_spike_threshold']
 
 def load_historical_data():
     """Load historical metrics for comparison"""
@@ -89,18 +95,24 @@ def analyze_objection_patterns():
     
     df = pd.read_csv(OBJECTION_CSV)
     
-    # Parse objections (assuming they're stored as string representations of lists)
+    # Parse objections safely using ast.literal_eval instead of eval
+    import ast
     objection_counts = {}
     for _, row in df.iterrows():
         try:
-            objections = eval(row['objections']) if pd.notna(row['objections']) and row['objections'] != '[]' else []
-            for obj in objections:
-                objection_counts[obj] = objection_counts.get(obj, 0) + 1
-        except:
+            if pd.notna(row['objections']) and row['objections'] != '[]':
+                # Safely parse list-like strings
+                objections = ast.literal_eval(row['objections'])
+                if isinstance(objections, list):
+                    for obj in objections:
+                        objection_counts[obj] = objection_counts.get(obj, 0) + 1
+        except (ValueError, SyntaxError):
+            # If parsing fails, skip this row
             continue
     
-    total_comments_with_objections = sum(1 for _, row in df.iterrows() 
-                                       if pd.notna(row['objections']) and row['objections'] != '[]')
+    # Vectorized operation instead of iterrows for better performance
+    valid_objections_mask = df['objections'].notna() & (df['objections'] != '[]')
+    total_comments_with_objections = valid_objections_mask.sum()
     
     objection_metrics = {
         "total_comments_analyzed": len(df),

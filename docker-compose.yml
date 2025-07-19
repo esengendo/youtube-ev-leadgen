@@ -4,7 +4,7 @@ services:
   # Main application service
   ev-leadgen-app:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
       target: production
     container_name: ev-leadgen-dashboard
@@ -34,7 +34,7 @@ services:
   # Data processing service (for batch jobs)
   ev-leadgen-processor:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
       target: production
     container_name: ev-leadgen-processor

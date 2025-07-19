@@ -1,5 +1,5 @@
 def main():
-    print("Hello from project-aws!")
+    print("Hello from EV Lead Generation project!")
 
 
 if __name__ == "__main__":
