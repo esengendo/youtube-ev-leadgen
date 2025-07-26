@@ -291,16 +291,18 @@ python scripts/setup_webhooks.py --url your_webhook_url
 
 ### **Local Development**
 ```bash
-# Development server
-streamlit run dashboard/streamlit_dashboard.py --server.port 8501
+# Activate virtual environment and run
+source .venv/bin/activate
+uv run streamlit run dashboard/streamlit_dashboard.py --server.port 8501
 ```
 
 ### **Docker Deployment**
 ```bash
-# Build container
-docker build -t ev-leadgen .
+# Using Docker Compose (recommended)
+docker-compose up --build
 
-# Run application
+# Or using Docker directly
+docker build -t ev-leadgen .
 docker run -p 8501:8501 ev-leadgen
 ```
 
