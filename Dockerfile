@@ -42,7 +42,7 @@ RUN ln -s /root/.cache/uv/venv /app/.venv
 EXPOSE 8501
 
 # Default command for development
-CMD ["uv", "run", "streamlit", "run", "dashboard/streamlit_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["uv", "run", "streamlit", "run", "dashboard/enhanced_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
 # Production stage
 FROM base as production
@@ -66,8 +66,5 @@ EXPOSE 8501
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8501/_stcore/health || exit 1
 
-# Default command for production (original dashboard)
-CMD ["uv", "run", "streamlit", "run", "dashboard/streamlit_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
-
-# For enhanced dashboard, use:
-# CMD ["uv", "run", "streamlit", "run", "dashboard/enhanced_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"] 
+# Default command for production (enhanced dashboard)
+CMD ["uv", "run", "streamlit", "run", "dashboard/enhanced_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"] 

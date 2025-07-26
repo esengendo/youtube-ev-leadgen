@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Main application service (Original Dashboard)
+  # Main application service (Enhanced Dashboard)
   ev-leadgen-app:
     build:
       context: .
@@ -9,12 +9,13 @@ services:
       target: production
     container_name: ev-leadgen-dashboard
     ports:
-      - "8501:8501"
+      - "8502:8501"
     environment:
       - PYTHONPATH=/app
       - STREAMLIT_SERVER_HEADLESS=true
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    command: ["uv", "run", "streamlit", "run", "dashboard/enhanced_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
   # Enhanced dashboard service
   ev-leadgen-enhanced:

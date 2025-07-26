@@ -258,7 +258,7 @@ Lead Qualification Rate: {qualification_rate:.1f}%
 1. Review high-probability leads in data/leads_predicted.csv
 2. Check executive dashboard: reports/executive_dashboard.txt
 3. Monitor alerts in reports/alerts_log.json
-4. Launch Streamlit dashboard: uv run streamlit run dashboard/streamlit_dashboard.py
+4. Launch Streamlit dashboard: uv run streamlit run dashboard/enhanced_dashboard.py
 
 =============================================================================
         """
@@ -287,7 +287,7 @@ Lead Qualification Rate: {qualification_rate:.1f}%
         self.log_info(f"   - Detailed Logs: {self.log_file}")
         self.log_info("")
         self.log_info("🚀 To view interactive dashboard:")
-        self.log_info("   uv run streamlit run dashboard/streamlit_dashboard.py")
+        self.log_info("   uv run streamlit run dashboard/enhanced_dashboard.py")
         self.log_info("")
 
 def main():

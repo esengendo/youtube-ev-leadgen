@@ -207,7 +207,7 @@ youtube-ev-leadgen/
 │   ├── analytics_and_alerts.py       # Business intelligence
 │   └── run_full_pipeline.sh          # Automation orchestration
 ├── 📈 dashboard/                     # Interactive visualization
-│   └── streamlit_dashboard.py        # Executive dashboard
+│   └── enhanced_dashboard.py        # Professional business dashboard
 ├── 📊 visualizations/                # Business charts & graphs
 ├── 📄 reports/                       # Executive reporting
 ├── ⚙️ config/                        # Configuration files
@@ -227,9 +227,8 @@ youtube-ev-leadgen/
 - **Action Items**: Automated business recommendations
 - **Modern UI**: Professional styling with hover effects and gradients
 
-### **Dashboard Options**
-- **Original Dashboard**: `http://localhost:8501` (streamlit_dashboard.py)
-- **Enhanced Dashboard**: `http://localhost:8502` (enhanced_dashboard.py) - **Recommended**
+### **Professional Dashboard**
+- **Enhanced Business Dashboard**: `http://localhost:8502` (enhanced_dashboard.py)
 
 ## 🎯 **Key Results & Insights**
 
@@ -295,10 +294,7 @@ python scripts/setup_webhooks.py --url your_webhook_url
 # Activate virtual environment and run
 source .venv/bin/activate
 
-# Run original dashboard
-uv run streamlit run dashboard/streamlit_dashboard.py --server.port 8501
-
-# Run enhanced business dashboard (recommended)
+# Run professional business dashboard
 uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 ```
 
@@ -309,10 +305,7 @@ docker-compose up --build
 
 # Or using Docker directly
 docker build -t ev-leadgen .
-docker run -p 8501:8501 ev-leadgen
-
-# For enhanced dashboard
-docker run -p 8502:8502 ev-leadgen streamlit run dashboard/enhanced_dashboard.py --server.port 8502
+docker run -p 8502:8501 ev-leadgen uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8501 --server.address 0.0.0.0
 ```
 
 

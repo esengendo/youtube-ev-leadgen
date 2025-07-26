@@ -303,7 +303,7 @@ print(f'{qualified/max(enriched,1)*100:.1f}%')
 1. Review high-probability leads in data/leads_predicted.csv
 2. Check executive dashboard: reports/executive_dashboard.txt
 3. Monitor alerts in reports/alerts_log.json
-4. Launch Streamlit dashboard: streamlit run dashboard/streamlit_dashboard.py
+4. Launch Streamlit dashboard: streamlit run dashboard/enhanced_dashboard.py
 
 =============================================================================
 EOF
@@ -326,7 +326,7 @@ generate_business_summary() {
     log_info "   - Detailed Logs: $LOG_FILE"
     log_info ""
     log_info "🚀 To view interactive dashboard:"
-    log_info "   streamlit run dashboard/streamlit_dashboard.py"
+    log_info "   streamlit run dashboard/enhanced_dashboard.py"
     log_info ""
 }
 

@@ -23,7 +23,7 @@
 
 ### **Working Dashboards**
 1. **Original Dashboard**: `http://localhost:8501`
-   - File: `dashboard/streamlit_dashboard.py`
+   - File: `dashboard/enhanced_dashboard.py`
    - Basic lead generation analytics
 
 2. **Enhanced Dashboard**: `http://localhost:8502` ⭐ **Recommended**
@@ -55,7 +55,7 @@ docker-compose up --build
 source .venv/bin/activate
 
 # Run original dashboard
-uv run streamlit run dashboard/streamlit_dashboard.py --server.port 8501
+uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 
 # Run enhanced dashboard
 uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
