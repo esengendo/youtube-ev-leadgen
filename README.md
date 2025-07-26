@@ -5,7 +5,6 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red.svg)](https://streamlit.io)
-[![AWS](https://img.shields.io/badge/AWS-Ready-orange.svg)](https://aws.amazon.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -63,7 +62,7 @@ graph TD
 
 ### **⚡ Automation & Scalability**
 - **End-to-End Pipeline**: Fully automated data processing
-- **AWS Integration**: Cloud-ready architecture
+- **Cloud-Ready Architecture**: Scalable deployment options
 - **Real-Time Processing**: Continuous lead generation
 - **Professional Logging**: Comprehensive audit trails
 
@@ -92,7 +91,6 @@ graph TD
 
 ### **Infrastructure & Deployment**
 - **Streamlit**: Interactive dashboard and reporting
-- **AWS S3**: Scalable data storage
 - **YouTube Data API v3**: Real-time data ingestion
 - **Docker**: Containerized deployment (ready)
 - **GitHub Actions**: CI/CD pipeline (configured)
@@ -214,8 +212,7 @@ youtube-ev-leadgen/
 ├── 📄 reports/                       # Executive reporting
 ├── ⚙️ config/                        # Configuration files
 ├── 🧪 tests/                         # Quality assurance
-├── 📚 docs/                          # Technical documentation
-└── ☁️ aws/                           # Cloud deployment configs
+└── 📚 docs/                          # Technical documentation
 ```
 
 ---
@@ -258,17 +255,7 @@ youtube-ev-leadgen/
 
 ## 🔧 **Advanced Configuration**
 
-### **AWS Integration**
-```bash
-# Configure AWS credentials
-aws configure
 
-# Deploy to S3 (optional)
-python aws/deploy_to_s3.py
-
-# Set up automated scheduling
-python aws/setup_lambda_trigger.py
-```
 
 ### **Custom Model Training**
 ```python
@@ -328,14 +315,7 @@ docker run -p 8501:8501 ev-leadgen
 docker run -p 8502:8502 ev-leadgen streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 ```
 
-### **AWS Cloud Deployment**
-```bash
-# Deploy to AWS Lambda
-serverless deploy
 
-# Set up CloudWatch monitoring
-python aws/setup_monitoring.py
-```
 
 ---
 
@@ -408,7 +388,7 @@ Our implementation directly incorporates findings from these research sources:
 - **Sentiment Classification**: Following [Sharma et al., 2024](https://www.mdpi.com/2813-2203/3/4/23) LLM-based approaches
 - **Feature Engineering**: Based on [Applied Sciences, 2023](https://www.mdpi.com/2076-3417/13/14/8176) automotive ML best practices  
 - **Business Metrics**: Aligned with [Google Business](https://business.google.com/us/think/measurement/video-advertising-roi-on-youtube/) ROI frameworks
-- **Cloud Architecture**: Following [AWS ML Blog](https://aws.amazon.com/blogs/machine-learning/real-time-analysis-of-customer-sentiment-using-aws/) patterns
+- **Cloud Architecture**: Following scalable ML patterns
 - **Domain Validation**: Supported by [ResearchGate](https://www.researchgate.net/publication/372388615_Sentiment_Analysis_of_Online_New_Energy_Vehicle_Reviews) EV sentiment research
 
 ### **Academic Contributions**
@@ -456,7 +436,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **YouTube Data API v3** for real-time data access
 - **HuggingFace Transformers** for state-of-the-art NLP models
 - **Streamlit** for rapid dashboard development
-- **AWS** for scalable cloud infrastructure
 - **Open Source Community** for foundational libraries
 
 ---
