@@ -220,6 +220,20 @@ youtube-ev-leadgen/
 
 ---
 
+## 🚀 **Enhanced Business Dashboard**
+
+### **Professional Features**
+- **Executive Summary**: Business-focused metrics with ROI projections
+- **Trend Analysis**: Real-time performance indicators with visual trends
+- **Revenue Forecasting**: Advanced charts by conversion probability
+- **Business Intelligence**: Enhanced filtering and export capabilities
+- **Action Items**: Automated business recommendations
+- **Modern UI**: Professional styling with hover effects and gradients
+
+### **Dashboard Options**
+- **Original Dashboard**: `http://localhost:8501` (streamlit_dashboard.py)
+- **Enhanced Dashboard**: `http://localhost:8502` (enhanced_dashboard.py) - **Recommended**
+
 ## 🎯 **Key Results & Insights**
 
 ### **Lead Generation Performance**
@@ -293,7 +307,12 @@ python scripts/setup_webhooks.py --url your_webhook_url
 ```bash
 # Activate virtual environment and run
 source .venv/bin/activate
+
+# Run original dashboard
 uv run streamlit run dashboard/streamlit_dashboard.py --server.port 8501
+
+# Run enhanced business dashboard (recommended)
+uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 ```
 
 ### **Docker Deployment**
@@ -304,6 +323,9 @@ docker-compose up --build
 # Or using Docker directly
 docker build -t ev-leadgen .
 docker run -p 8501:8501 ev-leadgen
+
+# For enhanced dashboard
+docker run -p 8502:8502 ev-leadgen streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 ```
 
 ### **AWS Cloud Deployment**
