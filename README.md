@@ -299,6 +299,8 @@ uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 ```
 
 ### **Docker Deployment**
+
+#### **For Intel/AMD (x86_64) Systems:**
 ```bash
 # Using Docker Compose (recommended)
 docker-compose up --build
@@ -307,6 +309,24 @@ docker-compose up --build
 docker pull esengendo730/youtube-ev-leadgen:v3.2
 docker run -p 8502:8501 esengendo730/youtube-ev-leadgen:v3.2
 ```
+
+#### **For Apple Silicon (M1/M2/M3) Systems:**
+```bash
+# Using Docker Compose (recommended)
+docker-compose up --build
+
+# Or using Docker directly
+docker pull --platform linux/arm64 esengendo730/youtube-ev-leadgen:v3.2
+docker run -p 8502:8501 esengendo730/youtube-ev-leadgen:v3.2
+```
+
+#### **For Other ARM64 Systems (Raspberry Pi, etc.):**
+```bash
+docker pull --platform linux/arm64 esengendo730/youtube-ev-leadgen:v3.2
+docker run -p 8502:8501 esengendo730/youtube-ev-leadgen:v3.2
+```
+
+> **💡 Platform Compatibility Note:** The Docker image is built for `linux/amd64` architecture. If you're on an ARM64 system (Apple Silicon, Raspberry Pi, etc.), you'll need to specify the platform or use emulation. The `--platform linux/arm64` flag tells Docker to use emulation for compatibility.
 
 
 
