@@ -304,8 +304,8 @@ uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8502
 docker-compose up --build
 
 # Or using Docker directly
-docker build -t ev-leadgen .
-docker run -p 8502:8501 ev-leadgen uv run streamlit run dashboard/enhanced_dashboard.py --server.port 8501 --server.address 0.0.0.0
+docker pull esengendo730/youtube-ev-leadgen:v3.2
+docker run -p 8502:8501 esengendo730/youtube-ev-leadgen:v3.2
 ```
 
 
