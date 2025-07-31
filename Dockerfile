@@ -38,6 +38,18 @@ COPY . .
 # Create virtual environment symlink for compatibility
 RUN ln -s /root/.cache/uv/venv /app/.venv
 
+# Create necessary directories and copy production data
+RUN mkdir -p /app/data /app/reports /app/visualizations /app/logs
+
+# Copy production data files to the image
+COPY data/comments_data.csv /app/data/
+COPY data/comments_data_cleaned.csv /app/data/
+COPY data/comments_data_enriched.csv /app/data/
+COPY data/leads.csv /app/data/
+COPY data/qualified_leads.csv /app/data/
+COPY data/leads_predicted.csv /app/data/
+COPY data/objection_analysis.csv /app/data/
+
 # Expose port
 EXPOSE 8501
 
@@ -58,6 +70,15 @@ RUN ln -s /root/.cache/uv/venv /app/.venv
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/reports /app/visualizations /app/logs
+
+# Copy production data files to the image
+COPY data/comments_data.csv /app/data/
+COPY data/comments_data_cleaned.csv /app/data/
+COPY data/comments_data_enriched.csv /app/data/
+COPY data/leads.csv /app/data/
+COPY data/qualified_leads.csv /app/data/
+COPY data/leads_predicted.csv /app/data/
+COPY data/objection_analysis.csv /app/data/
 
 # Expose port
 EXPOSE 8501

@@ -9,24 +9,24 @@
 Developed a comprehensive AI/ML platform that transforms YouTube engagement data into actionable sales intelligence for electric vehicle manufacturers, achieving 97% model accuracy and generating $1.35M in revenue potential.
 
 ### **Technical Achievements**
-• **Built end-to-end ML pipeline** processing 1,695+ YouTube comments with automated sentiment analysis, intent classification, and objection detection
+• **Built end-to-end ML pipeline** processing 1,695+ YouTube comments with GPU-accelerated sentiment analysis, optimized batch processing, and intelligent objection detection
 • **Implemented BERT-based sentiment analysis** achieving 94% accuracy using HuggingFace Transformers
 • **Developed predictive lead scoring model** with 97% accuracy, ROC AUC 1.00, and 95%+ precision using Random Forest
 • **Created real-time business intelligence dashboard** using Streamlit with interactive visualizations and automated alerts
-• **Designed scalable architecture** with Docker containerization, cloud-ready deployment, and comprehensive logging
+• **Designed scalable architecture** with Docker multi-stage builds, platform-specific deployment (ARM64/Apple Silicon), and comprehensive logging
 
 ### **Business Impact**
 • **Generated 213 qualified leads** from social media engagement with 12.6% conversion rate (vs. 2-5% industry benchmark)
 • **Identified 30 ultra-high probability leads** with 100% conversion likelihood and $1.35M revenue potential
 • **Reduced cost per lead to $2.50** (90% below industry average of $25)
-• **Achieved 1,695 comments/minute processing speed** with scalable enterprise architecture
+• **Achieved 60-80% faster processing** with GPU acceleration and optimized batch operations
 
 ### **Key Technologies & Skills**
-• **Programming**: Python 3.9+, Pandas, NumPy, Scikit-learn
+• **Programming**: Python 3.11+, Pandas, NumPy, uv package manager
 • **Machine Learning**: Random Forest, Feature Engineering, Model Validation, ROC Analysis
 • **NLP & AI**: HuggingFace Transformers, BERT, Sentiment Analysis, Intent Classification
 • **Data Visualization**: Plotly, Interactive Dashboards, Business Intelligence
-• **DevOps**: Docker, Containerization, Cloud Deployment, CI/CD
+• **DevOps**: Docker, Multi-stage builds, Platform-specific deployment, CI/CD
 • **APIs & Integration**: YouTube Data API v3, RESTful Services, Data Pipeline Automation
 
 ### **Technical Architecture**
