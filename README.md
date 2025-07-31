@@ -96,11 +96,7 @@ docker --version  # Should show Docker version
 docker pull esengendo730/youtube-ev-leadgen:latest
 docker run -p 8501:8501 esengendo730/youtube-ev-leadgen:latest
 
-# Option 2: Docker without Data (requires pipeline run)
-docker pull esengendo730/youtube-ev-leadgen:v3.3-optimized
-docker run -p 8501:8501 esengendo730/youtube-ev-leadgen:v3.3-optimized
-
-# Option 3: Local Development
+# Option 2: Local Development
 git clone https://github.com/yourusername/youtube-ev-leadgen.git
 cd youtube-ev-leadgen
 uv sync && uv run streamlit run dashboard/enhanced_dashboard.py
