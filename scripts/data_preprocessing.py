@@ -13,7 +13,32 @@ thresholds = config_manager.get_business_thresholds()
 # Setup logging
 logger = get_logger(__name__)
 
+def clean_comment_vectorized(text_series):
+    """
+    Vectorized text cleaning using pandas string operations for better performance
+    """
+    # Handle non-string values
+    text_series = text_series.fillna("").astype(str)
+    
+    # Lowercase (vectorized)
+    text_series = text_series.str.lower()
+    
+    # Remove URLs (vectorized)
+    text_series = text_series.str.replace(r"http\S+|www\.\S+", "", regex=True)
+    
+    # Remove emojis and non-ASCII (vectorized)
+    text_series = text_series.str.encode("ascii", errors="ignore").str.decode("ascii")
+    
+    # Remove special characters and numbers (vectorized)
+    text_series = text_series.str.replace(r"[^a-zA-Z\s.,!?']", " ", regex=True)
+    
+    # Remove extra whitespace (vectorized)
+    text_series = text_series.str.replace(r"\s+", " ", regex=True).str.strip()
+    
+    return text_series
+
 def clean_comment(text):
+    """Legacy function for backward compatibility"""
     if not isinstance(text, str):
         return ""
     # Lowercase
@@ -56,9 +81,9 @@ def main():
         df = df.dropna(subset=["Comment", "Username"])
         logger.info(f"After removing missing data: {len(df)} comments")
 
-        # Clean comment text
-        logger.info("Cleaning comment text...")
-        df["Cleaned_Comment"] = df["Comment"].apply(clean_comment)
+        # Vectorized comment text cleaning (much faster than apply)  
+        logger.info("Cleaning comment text with vectorized operations...")
+        df["Cleaned_Comment"] = clean_comment_vectorized(df["Comment"])
         
         # Remove comments that are too short or empty after cleaning
         min_length = thresholds['min_comment_length']

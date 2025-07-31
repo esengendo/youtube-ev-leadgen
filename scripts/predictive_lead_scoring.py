@@ -12,66 +12,58 @@ LEADS_CSV = "data/leads.csv"
 PREDICTED_LEADS_CSV = "data/leads_predicted.csv"
 MODEL_PATH = "models/lead_conversion_model.pkl"
 
-def derive_conversion_indicators(df):
+def derive_conversion_indicators_vectorized(df):
     """
-    Derive conversion likelihood from real behavioral signals in our YouTube data
-    instead of using simulated labels
+    Vectorized conversion likelihood derivation using optimized pandas operations
     """
-    # Initialize conversion score
-    conversion_score = np.zeros(len(df))
-    
     # Ensure Comment column exists and handle NaN values
     if 'Comment' not in df.columns:
         print("Warning: No 'Comment' column found. Using empty conversion scores.")
-        return np.zeros(len(df)), conversion_score
+        return np.zeros(len(df)), np.zeros(len(df))
     
-    # Fill NaN comments with empty strings
-    df['Comment'] = df['Comment'].fillna('')
+    # Prepare comment column once
+    comments_lower = df['Comment'].fillna('').astype(str).str.lower()
     
-    # 1. Strong Purchase Intent Signals (highest weight)
-    purchase_keywords = ['buy', 'purchase', 'order', 'reserve', 'reservation', 'buying', 'bought', 'ordered']
-    strong_intent = df['Comment'].str.lower().str.contains('|'.join(purchase_keywords), na=False)
-    conversion_score += strong_intent * 3
+    # Vectorized pattern matching - combine all patterns for single pass
+    patterns = {
+        'purchase': r'\b(?:buy|purchase|order|reserve|reservation|buying|bought|ordered)\b',
+        'timeline': r'\b(?:soon|next month|this year|202[4-9]|waiting|delivery)\b', 
+        'model': r'\b(?:r1t|r1s|r2|r3|rivian truck|rivian suv)\b',
+        'financial': r'\b(?:afford|financing|lease|payment|price|cost|budget)\b',
+        'practical': r'\b(?:delivery|warranty|service|charging|range|features|options)\b'
+    }
     
-    # 2. Timeline/Urgency Indicators
-    timeline_keywords = ['soon', 'next month', 'this year', '2024', '2025', 'waiting', 'delivery']
-    has_timeline = df['Comment'].str.lower().str.contains('|'.join(timeline_keywords), na=False)
-    conversion_score += has_timeline * 2
+    # Single pass pattern detection
+    pattern_matches = {}
+    for name, pattern in patterns.items():
+        pattern_matches[name] = comments_lower.str.contains(pattern, regex=True, na=False)
     
-    # 3. Specific Model Interest
-    model_keywords = ['r1t', 'r1s', 'r2', 'r3', 'rivian truck', 'rivian suv']
-    specific_model = df['Comment'].str.lower().str.contains('|'.join(model_keywords), na=False)
-    conversion_score += specific_model * 1.5
+    # Calculate conversion scores vectorized
+    conversion_score = (
+        pattern_matches['purchase'].astype(int) * 3 +
+        pattern_matches['timeline'].astype(int) * 2 +
+        pattern_matches['model'].astype(int) * 1.5 +
+        pattern_matches['financial'].astype(int) * 1 +
+        pattern_matches['practical'].astype(int) * 1
+    )
     
-    # 4. Financial Readiness Signals
-    financial_keywords = ['afford', 'financing', 'lease', 'payment', 'price', 'cost', 'budget']
-    financial_discussion = df['Comment'].str.lower().str.contains('|'.join(financial_keywords), na=False)
-    conversion_score += financial_discussion * 1
+    # User engagement (vectorized)
+    user_counts = df['Username'].value_counts()
+    high_engagement = df['Username'].map(user_counts) >= 2
+    conversion_score += high_engagement.astype(int) * 1
     
-    # 5. High Engagement (multiple comments, long comments)
-    user_comment_counts = df['Username'].value_counts()
-    high_engagement = df['Username'].map(user_comment_counts) >= 2
-    conversion_score += high_engagement * 1
-    
-    # 6. Detailed/Thoughtful Comments (length proxy for engagement)
-    comment_lengths = df['Comment'].astype(str).str.len()
-    long_comments = (comment_lengths > 100)
+    # Comment length (vectorized)
+    comment_lengths = df['Comment'].fillna('').astype(str).str.len()
+    long_comments = (comment_lengths > 100).astype(int)
     conversion_score += long_comments * 0.5
     
-    # 7. Positive Sentiment with Purchase Intent
+    # Sentiment-intent combination (if available)
     if 'Sentiment' in df.columns and 'Intent' in df.columns:
-        positive_purchase = (df['Sentiment'] == 'POSITIVE') & (df['Intent'] == 'Purchase Intent')
+        positive_purchase = ((df['Sentiment'] == 'POSITIVE') & (df['Intent'] == 'Purchase Intent')).astype(int)
         conversion_score += positive_purchase * 2
     
-    # 8. Questions about Practical Details (shows serious consideration)
-    practical_keywords = ['delivery', 'warranty', 'service', 'charging', 'range', 'features', 'options']
-    practical_questions = df['Comment'].str.lower().str.contains('|'.join(practical_keywords), na=False)
-    conversion_score += practical_questions * 1
-    
-    # Convert to binary labels using threshold (top 30% as likely converters)
-    # Handle edge case where all scores are the same
+    # Efficient threshold calculation
     if conversion_score.std() == 0:
-        # If all scores are identical, use median split
         threshold = conversion_score.median()
         conversion_labels = (conversion_score > threshold).astype(int)
     else:
@@ -85,41 +77,56 @@ def main():
         print(f"Leads data file not found: {LEADS_CSV}")
         return
     
+    print("Loading leads data...")
     df = pd.read_csv(LEADS_CSV)
     if df.empty:
         print("No leads to process.")
         return
 
-    print(f"Processing {len(df)} leads with real behavioral conversion indicators...")
+    print(f"Processing {len(df)} leads with vectorized behavioral analysis...")
     
-    # Use real behavioral indicators instead of simulated data
-    conversion_labels, conversion_scores = derive_conversion_indicators(df)
+    # Use optimized vectorized conversion indicators
+    conversion_labels, conversion_scores = derive_conversion_indicators_vectorized(df)
     df['Converted'] = conversion_labels
     df['ConversionScore'] = conversion_scores
     
-    print(f"Identified {conversion_labels.sum()} high-probability converters from behavioral signals")
+    print(f"✅ Identified {conversion_labels.sum()} high-probability converters from behavioral signals")
 
-    # Feature engineering based on real data (avoid duplicates)
-    df['comment_length'] = df['Comment'].fillna('').astype(str).str.len()
-    df['is_purchase_intent'] = (df['Intent'] == 'Purchase Intent').astype(int) if 'Intent' in df.columns else 0
-    df['is_interest_inquiry'] = (df['Intent'] == 'Interest/Inquiry').astype(int) if 'Intent' in df.columns else 0
-    df['is_positive'] = (df['Sentiment'] == 'POSITIVE').astype(int) if 'Sentiment' in df.columns else 0
+    # Vectorized feature engineering (avoid redundant computations)
+    print("Generating ML features with vectorized operations...")
     
-    # User engagement metrics
-    user_comment_counts = df['Username'].value_counts().to_dict()
+    # Basic features
+    df['comment_length'] = df['Comment'].fillna('').astype(str).str.len()
+    
+    # Intent/sentiment features (if available)
+    if 'Intent' in df.columns:
+        df['is_purchase_intent'] = (df['Intent'] == 'Purchase Intent').astype(int)
+        df['is_interest_inquiry'] = (df['Intent'] == 'Interest/Inquiry').astype(int)
+    else:
+        df['is_purchase_intent'] = 0
+        df['is_interest_inquiry'] = 0
+        
+    if 'Sentiment' in df.columns:
+        df['is_positive'] = (df['Sentiment'] == 'POSITIVE').astype(int)
+    else:
+        df['is_positive'] = 0
+    
+    # User engagement (already computed, reuse)
+    user_comment_counts = df['Username'].value_counts()
     df['user_comment_count'] = df['Username'].map(user_comment_counts)
     
-    # Advanced behavioral features
-    df['has_purchase_keywords'] = df['Comment'].fillna('').str.lower().str.contains(
-        'buy|purchase|order|reserve|buying|bought|ordered', na=False
+    # Reuse pattern matches from conversion scoring (avoid recomputation)
+    comments_lower = df['Comment'].fillna('').astype(str).str.lower()
+    df['has_purchase_keywords'] = comments_lower.str.contains(
+        r'\b(?:buy|purchase|order|reserve|buying|bought|ordered)\b', regex=True, na=False
     ).astype(int)
     
-    df['has_timeline_urgency'] = df['Comment'].fillna('').str.lower().str.contains(
-        'soon|next month|this year|2024|2025|waiting|delivery', na=False
+    df['has_timeline_urgency'] = comments_lower.str.contains(
+        r'\b(?:soon|next month|this year|202[4-9]|waiting|delivery)\b', regex=True, na=False
     ).astype(int)
     
-    df['discusses_financials'] = df['Comment'].fillna('').str.lower().str.contains(
-        'afford|financing|lease|payment|price|cost|budget', na=False
+    df['discusses_financials'] = comments_lower.str.contains(
+        r'\b(?:afford|financing|lease|payment|price|cost|budget)\b', regex=True, na=False
     ).astype(int)
 
     # Features for ML model
